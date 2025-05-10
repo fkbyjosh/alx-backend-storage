@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 """
-students
+Module for working with MongoDB and student data
 """
 
 
 def top_students(mongo_collection):
-     """ students by score """
-    return mongo_collection.aggregate([
+    """
+    Returns all students sorted by average score
+    
+    Args:
+        mongo_collection: pymongo collection object
+    
+    Returns:
+        List of students sorted by average score in descending order,
+        with the average score added as a field
+    """
+    # Pipeline for the aggregation
+    pipeline = [
         {
-            "$project":
-                {
-                    "name": "$name",
-                    "averageScore": {"$avg": "$topics.score"}
-                }
+            "$addFields": {
+                "averageScore": {"$avg": "$topics.score"}
+            }
         },
-        {
-            "$sort":
-                {
-                    "averageScore": -1
-                }
-        }
-])
+        {"$sort": {"averageScore": -1}}
+    ]
+    
+    # Execute the aggregation
+    return list(mongo_collection.aggregate(pipeline))
